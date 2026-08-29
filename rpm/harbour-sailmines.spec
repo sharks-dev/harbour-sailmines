@@ -3,8 +3,8 @@ Name:       harbour-sailmines
 Summary:    Minesweeper clone for SFOS
 Version:    0.8
 Release:    1
-License:    LICENSE
-URL:        http://example.org/
+License:    MIT
+URL:        https://github.com/sharks-dev/harbour-sailmines
 Source0:    %{name}-%{version}.tar.bz2
 Requires:   sailfishsilica-qt5 >= 0.10.9
 BuildRequires:  pkgconfig(sailfishapp) >= 1.0.2
@@ -17,6 +17,27 @@ Obsoletes: SailMines
 %description
 Minesweeper clone for SFOS
 
+# This description section includes metadata for SailfishOS:Chum, see
+# https://github.com/sailfishos-chum/main/blob/main/Metadata.md
+%if 0%{?_chum}
+Title: Sailmines
+Type: desktop-application
+DeveloperName: Sharks
+PackagedBy: Sharks
+Categories:
+ - Game
+Custom:
+  Repo: https://github.com/sharks-dev/harbour-sailmines
+PackageIcon: https://github.com/sharks-dev/harbour-sailmines/raw/main/icons/172x172/harbour-sailmines.png
+Screenshots:
+ - https://github.com/sharks-dev/harbour-sailmines/raw/main/screenshots/won.png
+ - https://github.com/sharks-dev/harbour-sailmines/raw/main/screenshots/lost.png
+ - https://github.com/sharks-dev/harbour-sailmines/raw/main/screenshots/zoomOut.png
+ - https://github.com/sharks-dev/harbour-sailmines/raw/main/screenshots/settings.png
+Links:
+  Homepage: https://github.com/sharks-dev/harbour-sailmines
+  Bugtracker: https://github.com/sharks-dev/harbour-sailmines/issues
+%endif
 
 %prep
 %setup -q -n %{name}-%{version}
