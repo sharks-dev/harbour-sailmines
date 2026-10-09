@@ -40,6 +40,31 @@ ApplicationWindow {
             key: "/apps/sailmines/settings/tapShield"
             defaultValue: false
         }
+
+
+        ConfigurationValue {
+            id: boardState
+            key: "/apps/sailmines/currentgame/boardstate"
+            defaultValue: []
+            // Note:    boardState is the same length as board / boardGrid,
+            //          except it contains:
+            //              -1 for a flagged cell
+            //              0 for an unrevealed cell
+            //              1 for a revealed cell
+            //              2 for a highlighted revealed cell
+            //              3 for a warning revealed cell
+        }
+        ConfigurationValue {
+            id: boardGrid
+            key: "/apps/sailmines/currentgame/currentboard"
+            defaultValue: []
+        }
+
+        ConfigurationValue {
+            id: timerValue
+            key: "/apps/sailmines/currentgame/timer"
+            defaultValue: 0
+        }
     }
 
     initialPage: Component { MinefieldPage { } }

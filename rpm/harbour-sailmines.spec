@@ -1,7 +1,7 @@
 Name:       harbour-sailmines
 
 Summary:    Minesweeper clone for SFOS
-Version:    0.8
+Version:    0.9
 Release:    1
 License:    MIT
 URL:        https://github.com/sharks-dev/harbour-sailmines

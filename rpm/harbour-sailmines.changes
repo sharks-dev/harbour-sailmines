@@ -12,6 +12,11 @@
 # * date Author's Name <author's email> version-release
 # - Summary of changes
 
+* Fri Oct 09 2026 Ash Sharkey <asharkey268@outlook.com> 0.9-1
+- Added automatic saving of progress
+- Fixed UI glitches in 5.2
+- Added minimum limits on mine quantity to increase stability on large grids
+
 * Thu Nov 14 2024 Ash Sharkey <asharkey268@outlook.com> 0.8-1
 - The timer now pauses when the minefield is not on screen
 - Adding translation support

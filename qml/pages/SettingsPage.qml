@@ -59,7 +59,7 @@ Page {
                 value: gridSize.value
                 minimumValue: 10
                 maximumValue: 100
-                onValueChanged: resetMineCountMax()
+                onValueChanged: resetMineCountBounds()
             }
 
             // Controls for setting mine count
@@ -184,7 +184,7 @@ Page {
                     onClicked: {
                         var temp = !freeSpace.value;
                         freeSpace.value = temp;
-                        resetMineCountMax();
+                        resetMineCountBounds();
                         numMines.value = Math.round(mineCount.value);
                     }
                 }
@@ -214,7 +214,7 @@ Page {
                     anchors.verticalCenter: parent.verticalCenter
 
                     Label {
-                        text: "SailMines v0.8, © Sharks 2024."
+                        text: "SailMines v0.9, © Sharks 2026."
                         anchors.horizontalCenter: parent.horizontalCenter
                         width: parent.width
                         wrapMode: Text.WordWrap
@@ -241,6 +241,10 @@ Page {
     function rebuildGrid() {
         gridSize.value = Math.round(boardSize.value);
         numMines.value = Math.round(mineCount.value);
+        gamePageRef.boardStateLocal = [];
+        gamePageRef.board = [];
+        boardState.value = gamePageRef.boardStateLocal;
+        boardGrid.value = gamePageRef.board;
         gamePageRef.initialiseBoard();
         gamePageRef.fixScrollBounds();
     }
@@ -252,7 +256,7 @@ Page {
         controlSwitch2.checked = !temp;
     }
 
-    function resetMineCountMax() {
+    function resetMineCountBounds() {
         if (freeSpace.value) {
             mineCount.maximumValue = Math.round(boardSize.value) * Math.round(boardSize.value) - 9;
         } else {
@@ -262,6 +266,12 @@ Page {
 
         if (mineCount.value > mineCount.maximumValue) {
             mineCount.value = mineCount.maximumValue;
+        }
+
+        mineCount.minimumValue = Math.round(0.15 * boardSize.value * boardSize.value);
+
+        if (mineCount.value < mineCount.minimumValue) {
+            mineCount.value = mineCount.minimumValue;
         }
     }
 

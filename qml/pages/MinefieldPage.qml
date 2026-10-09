@@ -6,6 +6,7 @@ Page {
     id: gamePage
 
     property var board: []
+    property var boardStateLocal: []
 
     property bool isFirstPress: true
 
@@ -58,8 +59,8 @@ Page {
                 model: gridSize.value * gridSize.value
                 SilicaFlickable {
                     id: cell
-                    width: 100
-                    height: 120
+                    width: cellButton.height
+                    height: cellButton.height
 
                     // Expose Button's text property through an alias
                     property alias buttonText: cellButton.text
@@ -136,7 +137,7 @@ Page {
                 id: restart
                 icon.source: "image://theme/icon-m-refresh"
                 anchors.verticalCenter: parent.verticalCenter
-                onClicked: initialiseBoard()
+                onClicked: { board = []; boardGrid.value = board; boardStateLocal = []; boardState.value = boardStateLocal; timerValue.value = 0; initialiseBoard(); }
             }
             IconButton {
                 id: options
@@ -166,7 +167,7 @@ Page {
     }
 
     function updateTimer() {
-        if (gamePage.activeFocus) { timerText.text = timerText.text*1 + 1; }
+        if (gamePage.activeFocus) { timerText.text = timerText.text*1 + 1; timerValue.value = timerText.text}
     }
 
     function initialiseBoard() {
@@ -183,7 +184,51 @@ Page {
             grid.children[i].buttonColour = palette.primaryColor;
         }
 
+        if (boardState.value && boardState.value.length > 0) {
+            // If an old game is still underway,
+            // we need to load it.
 
+            isFirstPress = false;
+
+            board = boardGrid.value;
+            boardStateLocal = boardState.value;
+            timerText.text = timerValue.value;
+
+            for (var i = 0; i < (gridSize.value * gridSize.value); i++) {
+                switch (boardStateLocal[i]) {
+                case -1:
+                    grid.children[i].buttonText = "🏳"
+                    break;
+                case 0:
+                    // do nothing, button is already set up how we want it
+                    break;
+                case 1:
+                    grid.children[i].buttonEnabled = false;
+                    if (board[i] !== 0) { grid.children[i].buttonText = board[i]; }
+                    break;
+                case 2:
+                    grid.children[i].buttonEnabled = false;
+                    grid.children[i].buttonText = board[i];
+                    grid.children[i].buttonColour = palette.secondaryColor;
+                    break;
+                case 3:
+                    grid.children[i].buttonEnabled = false;
+                    grid.children[i].buttonText = board[i];
+                    grid.children[i].buttonColour = palette.errorColor;
+                    break;
+                default:
+                    // no state to restore
+                    boardStateLocal = [];
+                    board = [];
+                    boardState.value = boardStateLocal;
+                    boardGrid.value = board;
+                    timerValue.value = 0;
+                    break;
+                }
+            }
+
+            gameTimer.start();
+        }
     }
 
     function countAdjacentMines(index) {
@@ -210,6 +255,8 @@ Page {
                     // dangerous,
 
                     grid.children[index].buttonColour = palette.errorColor; // warn the user, don't reveal its adjacent cells!
+                    boardStateLocal[index] = 3;
+                    boardState.value = boardStateLocal;
                     // note this doesn't check if the flags are in the right spot, just that
                     // there are the right number of flags.
                 } else {
@@ -233,8 +280,10 @@ Page {
 
                     // Create an array of size gridSize.value * gridSize.value with all elements set to 0
                     board = []
+
                     for (var i = 0; i < gridSize.value * gridSize.value; i++) {
-                        board.push(0)
+                        board.push(0);
+                        boardStateLocal.push(0);
                     }
 
                     // Randomly place mines (value -1 indicates a mine)
@@ -266,9 +315,13 @@ Page {
                     }
 
                     isFirstPress = false;
+
+                    boardGrid.value = board; // Save the current game grid in case the user plays over >1 session
+                    boardState.value = boardStateLocal;
                 }
 
                 revealCell(cell, index);
+
             }
         }
 
@@ -277,6 +330,8 @@ Page {
             for (var j = 0; j < adjacentCells.length; j++) { // for each adjacent cell to the one pressed
                 if (highlightCell(adjacentCells[j])) {
                     grid.children[adjacentCells[j]].buttonColour = palette.secondaryColor;
+                    boardStateLocal[adjacentCells[j]] = 2;
+                    boardState.value = boardStateLocal;
                 } else {
                     grid.children[adjacentCells[j]].buttonColour = palette.primaryColor
                 }
@@ -325,6 +380,8 @@ Page {
             // unflag cell
             cell.buttonText = "";
             mineCount.text = mineCount.text*1 + 1;
+            boardStateLocal[index] = 0;
+            boardState.value = boardStateLocal;
         } else if (cell.buttonText === "") {
             if (!cell.buttonEnabled) { return; } // Because we run this function
                                                  // based on a mouseArea event rather
@@ -333,6 +390,8 @@ Page {
                                                  // this check.
             cell.buttonText = "🏳"
             mineCount.text = mineCount.text*1 - 1;
+            boardStateLocal[index] = -1;
+            boardState.value = boardStateLocal;
             if (mineCount.text === "0") {
                 // we know we have the right number of flags,
                 // but not sure if they're in the right places.
@@ -348,6 +407,11 @@ Page {
                     // we know the flags were in the right spot.
                     gameTimer.stop();
                     Notices.show(qsTr("You won!"), Notice.Short, Notice.Center);
+                    boardStateLocal = [];
+                    board = [];
+                    boardState.value = boardStateLocal;
+                    boardGrid.value = board;
+                    timerValue.value = 0;
                 }
             }
         }
@@ -363,13 +427,18 @@ Page {
             return;
         }
 
+        if (board[index] >= 0) {
+            boardStateLocal[index] = 1;
+            boardState.value = boardStateLocal;
+        }
 
         if (board[index] === 0) { // if the cell is safe and there are no adjacent mines,
             cell.buttonEnabled = false;
             var indices = getAdjacentIndices(index); // continue checking all adjacent cells until we find mines.
             for (var j = 0; j < indices.length; j++) {
                 if (grid.children[indices[j]].buttonEnabled !== false) {
-                revealCell(grid.children[indices[j]], indices[j]); }
+                    revealCell(grid.children[indices[j]], indices[j]);
+                }
             }
         } else if (board[index] !== -1) { // if the cell is safe, but there are adjacent mines,
             cell.buttonText = board[index]; // show the user how many adjacent mines there are.
@@ -394,6 +463,11 @@ Page {
                 // stop timer
                 gameTimer.stop();
                 Notices.show(qsTr("You won!"), Notice.Short, Notice.Center);
+                boardStateLocal = [];
+                board = [];
+                boardState.value = boardStateLocal;
+                boardGrid.value = board;
+                timerValue.value = 0;
             }
 
         } else {
@@ -412,6 +486,10 @@ Page {
 
             longBuzz.play();
             Notices.show(qsTr("You lost!"), Notice.Short, Notice.Center);
+            boardStateLocal = [];
+            board = [];
+            boardState.value = boardStateLocal;
+            boardGrid.value = board;
         }
     }
 
