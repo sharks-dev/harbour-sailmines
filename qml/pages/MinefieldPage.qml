@@ -198,6 +198,7 @@ Page {
                 switch (boardStateLocal[i]) {
                 case -1:
                     grid.children[i].buttonText = "🏳"
+                    mineCount.text = mineCount.text*1 - 1;
                     break;
                 case 0:
                     // do nothing, button is already set up how we want it
