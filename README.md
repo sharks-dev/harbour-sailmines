@@ -3,9 +3,7 @@
 # SailMines
 ### A minesweeper clone for Sailfish OS
 
-Planned features:
-
-* Auto-save progress so that you can pick up again where you left off in long games
+Built before AI. I might not know what I'm doing, but at least I'm not slopping.
 
 Known bugs:
 
